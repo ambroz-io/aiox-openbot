@@ -6,6 +6,8 @@ Integração independente, experimental, em fork público de SynkraAI/aiox-core.
 Orion é o ponto de contato do usuário e chefe direto dos onze agentes permanentes. Todos os retornos passam por Orion. Consulte [manifest.json](manifest.json) e [agents/](agents/).
 
 ## Instalação em outro OpenBot
+Para distribuição sem configurações de IDE, use primeiro o [guia portátil](261124-110000-instalacao-portatil-openbot.md) e o exportador por allowlist. Não instale a partir do clone completo nem execute hooks upstream. O guia inclui bootstrap, registro local, verificação e limites.
+
 1. Obtenha este fork na branch openbot e leia estas instruções.
 2. Preserve as instruções e configurações anteriores do coordenador em backup privado.
 3. Leia o manifesto e as instruções adaptadas. Configure o coordenador com a definição aiox-master, preservando regras locais de segurança e VPS.

@@ -1,5 +1,7 @@
 # AIOX Squad: Artificial Intelligence Orchestration eXperience
 
+> **This fork: the AIOX team for OpenBot.** Start with the [portable installation guide (Portuguese)](integrations/openbot/261124-110000-instalacao-portatil-openbot.md). It exports only the files needed by the OpenBot adaptation and explains setup through official tools, without personal settings or IDE hooks. Do not use the CLI/npm installation below to install the team in OpenBot. The rest of this README documents the original [SynkraAI/aiox-core](https://github.com/SynkraAI/aiox-core) framework; its history, MIT license and credits are preserved.
+
 > 🌍 **[English](README.en.md)** | [Português](README.md)
 
 [![NPM Version](https://img.shields.io/npm/v/aiox-core.svg)](https://www.npmjs.com/package/aiox-core)
