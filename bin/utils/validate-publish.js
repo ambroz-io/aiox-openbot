@@ -36,18 +36,42 @@ let passed = true;
 let fileCount = 0;
 
 function parsePackedFiles(packOutput) {
-  try {
-    const parsed = JSON.parse(packOutput);
-    const firstPackage = Array.isArray(parsed) ? parsed[0] : parsed;
-    if (firstPackage && Array.isArray(firstPackage.files)) {
-      return firstPackage.files
-        .map((file) => file && file.path)
-        .filter((filePath) => typeof filePath === 'string');
+  // Lifecycle hooks (including Husky) may prefix JSON without a newline.
+  // Skip the supported [hook] log label, then parse the first payload once.
+  // Never recover an inner object from a malformed enclosing array.
+  // Skip recognized notice lines only before locating the payload.
+  // Once JSON starts, parse its original suffix without removing any records.
+  for (let offset = 0; offset < packOutput.length; offset++) {
+    if (offset === 0 || packOutput[offset - 1] === '\n') {
+      const notice = packOutput.slice(offset).match(
+        /^[ \t]*(?:\[hook\][ \t]*)?npm notice(?:[ \t][^\r\n]*)?(?:\r?\n|$)/,
+      );
+      if (notice) {
+        offset += notice[0].length - 1;
+        continue;
+      }
     }
-  } catch (_err) {
-    // Older npm versions may emit notice lines instead of valid JSON; parse that legacy output.
+    if (packOutput[offset] !== '[' && packOutput[offset] !== '{') continue;
+    const logLabel = packOutput.slice(offset).match(/^\[hook\]/);
+    if (logLabel) {
+      offset += logLabel[0].length - 1;
+      continue;
+    }
+    try {
+      const parsed = JSON.parse(packOutput.slice(offset));
+      const firstPackage = Array.isArray(parsed) ? parsed[0] : parsed;
+      if (firstPackage && Array.isArray(firstPackage.files)) {
+        return firstPackage.files
+          .map((file) => file && file.path)
+          .filter((filePath) => typeof filePath === 'string');
+      }
+    } catch (_err) {
+      // Malformed JSON must fail closed, including truncated outer arrays.
+    }
+    return [];
   }
 
+  // Older npm versions may emit notice lines instead of valid JSON.
   return packOutput
     .split('\n')
     .filter(

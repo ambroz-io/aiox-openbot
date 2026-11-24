@@ -142,7 +142,7 @@ class RegistryUpdater {
         // For unlink, file doesn't exist so _resolveSymlink returns original path
         // We need to manually resolve the path to match _repoRoot format on macOS
         let resolved = this._resolveSymlink(abs);
-        if (c.action === 'unlink' && resolved === abs) {
+        if (process.platform === 'darwin' && c.action === 'unlink' && resolved === abs) {
           // File doesn't exist - normalize path manually for macOS /var -> /private/var
           // This ensures path.relative() works correctly with _repoRoot
           resolved = abs.replace(/^\/var\//, '/private/var/');

@@ -126,3 +126,59 @@ describe('Publish Safety Gate (Story INS-4.10 / PRO-13.5)', () => {
     });
   });
 });
+
+
+describe('pack output parsing regression', () => {
+  let parse;
+  beforeAll(() => {
+    const source = fs.readFileSync(SCRIPT_PATH, 'utf8');
+    const body = source.slice(source.indexOf('function parsePackedFiles('), source.indexOf('// Check 1/2:'));
+    parse = require('vm').runInNewContext(body + '; parsePackedFiles');
+  });
+  const files = Array.from({ length: 50 }, (_, i) => ({ path: `bin/file-${i}.js` }));
+  test.each(['HUSKY=0 skip install', '', '> prepare\n> husky\nhusky - install command is DEPRECATED\n', '[hook] preparing\n'])('reads package JSON after lifecycle prefix %p', (prefix) => {
+    expect(Array.from(parse(prefix + JSON.stringify([{ files }], null, 2)))).toEqual(files.map(f => f.path));
+  });
+  test('retains pro paths for rejection even with lifecycle chatter', () => {
+    expect(Array.from(parse('prepare hook\n' + JSON.stringify([{ files: [...files, { path: 'pro/private.js' }] }])))).toContain('pro/private.js');
+  });
+  test('malformed JSON cannot produce a successful package count', () => {
+    expect(Array.from(parse('hook\n[{"files": ['))).toEqual([]);
+  });
+  test.each(['', 'HUSKY=0 skip install', '[hook] preparing\n'])('rejects truncated outer package array after %p', (prefix) => {
+    expect(Array.from(parse(prefix + JSON.stringify([{ files }]).slice(0, -1)))).toEqual([]);
+  });
+  test.each(['', 'HUSKY=0 skip install', '[hook] preparing\n'])('does not salvage last object and lose pro path after %p', (prefix) => {
+    const payload = JSON.stringify([{ files: [{ path: 'pro/private.js' }] }, { files }]).slice(0, -1);
+    expect(Array.from(parse(prefix + payload))).toEqual([]);
+  });
+  test('retains pro path from a complete multi-package payload', () => {
+    expect(Array.from(parse(JSON.stringify([{ files: [{ path: 'pro/private.js' }] }, { files }])))).toContain('pro/private.js');
+  });
+  test('supports a complete object payload', () => {
+    expect(Array.from(parse(JSON.stringify({ files })))).toEqual(files.map(f => f.path));
+  });
+  test('does not fall back to notices when JSON is truncated', () => {
+    expect(Array.from(parse('npm notice 1.2kB bin/safe.js\n' + JSON.stringify([{ files }]).slice(0, -1)))).toEqual([]);
+  });
+  test.each(['bin/[id].js', 'bin/{id}.js', 'pro/[id].js', 'pro/{id}.js'])('retains delimiters in legacy notice path %p', (filePath) => {
+    expect(Array.from(parse(`npm notice 1.2kB ${filePath}`))).toEqual([filePath]);
+    expect(Array.from(parse(`npm notice 1.2kB ${filePath}\r\n`))).toEqual([filePath]);
+    expect(Array.from(parse(`[hook] npm notice 1.2kB ${filePath}`))).toEqual([filePath]);
+  });
+  test('ignores notice filename delimiters before a complete JSON payload', () => {
+    const output = 'npm notice 1.2kB bin/[id].js\n' + JSON.stringify([{ files: [...files, { path: 'pro/private.js' }] }]);
+    expect(Array.from(parse(output))).toContain('pro/private.js');
+  });
+  test.each(['bin/[id].js', 'bin/{id}.js'])('rejects truncated JSON even after misleading legacy record %p', (filePath) => {
+    const output = `npm notice 1.2kB ${filePath}\n` + JSON.stringify([{ files: [{ path: 'pro/private.js' }] }, { files }]).slice(0, -1);
+    expect(Array.from(parse(output))).toEqual([]);
+  });
+  test('does not remove notice-like text from inside a malformed JSON payload', () => {
+    const output = '[\nnpm notice 1.2kB bin/[id].js\n' + JSON.stringify({ files }) + ']';
+    expect(Array.from(parse(output))).toEqual([]);
+  });
+  test('keeps legacy npm notice support', () => {
+    expect(Array.from(parse('npm notice 1.2kB pro/private.js'))).toEqual(['pro/private.js']);
+  });
+});
