@@ -853,3 +853,24 @@ describe('RegistryUpdater', () => {
     });
   });
 });
+
+
+describe('unlink path portability regression', () => {
+  const platform = process.platform;
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: platform });
+    jest.restoreAllMocks();
+  });
+  test.each(['linux', 'win32', 'darwin'])('resolves missing /var paths on %s', async (target) => {
+    Object.defineProperty(process, 'platform', { value: target });
+    const updater = Object.create(RegistryUpdater.prototype);
+    updater._repoRoot = target === 'darwin' ? '/private/var/project' : '/var/project';
+    updater._resolveSymlink = (value) => value;
+    updater._isExcluded = () => false;
+    updater._detectCategory = (rel) => rel.startsWith('.aiox-core/') ? 'tasks' : null;
+    updater._executeBatch = jest.fn().mockResolvedValue({ updated: 1, errors: [] });
+    const result = await updater.processChanges([{ action: 'unlink', filePath: '/var/project/.aiox-core/development/tasks/deleted.md' }]);
+    expect(result.updated).toBe(1);
+    expect(updater._executeBatch).toHaveBeenCalledWith([{ action: 'unlink', filePath: updater._repoRoot + '/.aiox-core/development/tasks/deleted.md' }]);
+  });
+});
