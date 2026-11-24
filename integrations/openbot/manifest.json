@@ -1,0 +1,104 @@
+{
+  "format_version": 1,
+  "upstream": "https://github.com/SynkraAI/aiox-core.git",
+  "upstream_commit": "4ef6530ff03b83aea953e4a426f95e012b8b70c5",
+  "coordinator": "aiox-master",
+  "roles": [
+    {
+      "id": "aiox-master",
+      "name": "Orion",
+      "title": "Orquestração e VPS",
+      "reports_to": null,
+      "instructions": "agents/aiox-master.md",
+      "source": ".aiox-core/development/agents/aiox-master.md"
+    },
+    {
+      "id": "dev",
+      "name": "Dex",
+      "title": "Desenvolvimento",
+      "reports_to": "aiox-master",
+      "instructions": "agents/dev.md",
+      "source": ".aiox-core/development/agents/dev.md"
+    },
+    {
+      "id": "qa",
+      "name": "Quinn",
+      "title": "Qualidade",
+      "reports_to": "aiox-master",
+      "instructions": "agents/qa.md",
+      "source": ".aiox-core/development/agents/qa.md"
+    },
+    {
+      "id": "architect",
+      "name": "Aria",
+      "title": "Arquitetura",
+      "reports_to": "aiox-master",
+      "instructions": "agents/architect.md",
+      "source": ".aiox-core/development/agents/architect.md"
+    },
+    {
+      "id": "analyst",
+      "name": "Atlas",
+      "title": "Análise",
+      "reports_to": "aiox-master",
+      "instructions": "agents/analyst.md",
+      "source": ".aiox-core/development/agents/analyst.md"
+    },
+    {
+      "id": "pm",
+      "name": "Morgan",
+      "title": "Produto",
+      "reports_to": "aiox-master",
+      "instructions": "agents/pm.md",
+      "source": ".aiox-core/development/agents/pm.md"
+    },
+    {
+      "id": "po",
+      "name": "Pax",
+      "title": "Backlog e validação",
+      "reports_to": "aiox-master",
+      "instructions": "agents/po.md",
+      "source": ".aiox-core/development/agents/po.md"
+    },
+    {
+      "id": "sm",
+      "name": "River",
+      "title": "Scrum e tarefas",
+      "reports_to": "aiox-master",
+      "instructions": "agents/sm.md",
+      "source": ".aiox-core/development/agents/sm.md"
+    },
+    {
+      "id": "data-engineer",
+      "name": "Dara",
+      "title": "Dados",
+      "reports_to": "aiox-master",
+      "instructions": "agents/data-engineer.md",
+      "source": ".aiox-core/development/agents/data-engineer.md"
+    },
+    {
+      "id": "ux-design-expert",
+      "name": "Uma",
+      "title": "UX e design",
+      "reports_to": "aiox-master",
+      "instructions": "agents/ux-design-expert.md",
+      "source": ".aiox-core/development/agents/ux-design-expert.md"
+    },
+    {
+      "id": "devops",
+      "name": "Gage",
+      "title": "DevOps e GitHub",
+      "reports_to": "aiox-master",
+      "instructions": "agents/devops.md",
+      "source": ".aiox-core/development/agents/devops.md"
+    },
+    {
+      "id": "squad-creator",
+      "name": "Craft",
+      "title": "Criação de equipes",
+      "reports_to": "aiox-master",
+      "instructions": "agents/squad-creator.md",
+      "source": ".aiox-core/development/agents/squad-creator.md"
+    }
+  ]
+}
